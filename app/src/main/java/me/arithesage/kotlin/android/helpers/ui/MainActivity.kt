@@ -24,11 +24,22 @@ class MainActivity : AppCompatActivity() {
         SimpleDialogs.Init (this)
         Requesters.Init (this)
 
+        Requesters.RequestInt(
+            "IntTest",
+            "Enter a number:",
+            onAccept = { response: Int ->
+                SimpleDialogs.ShowMessage (response.toString())
+            }
+        )
+
+        /*
         Requesters.RequestString (
             "Test",
             "Enter data:",
-            onAccept = { response: String -> SimpleDialogs.ShowMessage (response)
+            onAccept = { response: String ->
+                SimpleDialogs.ShowMessage (response)
             }
         )
+        */
     }
 }
