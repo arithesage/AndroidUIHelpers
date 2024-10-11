@@ -45,10 +45,19 @@ project (":Helpers-Testing").projectDir = File (
     "Helpers/lib"
 )
 
-//include (":Helpers")
-//project (":Helpers").projectDir = File (wipProjects.toFile(), "Helpers/lib")
+/*
+include (":Helpers")
+project (":Helpers").projectDir = File (
+    wipProjects.toFile(),
+    "Helpers/lib"
+)
+*/
 
-
+include (":Helpers-Utils")
+project (":Helpers-Utils").projectDir = File (
+    wipProjects.toFile(),
+    "Helpers/Utils"
+)
 
 
 

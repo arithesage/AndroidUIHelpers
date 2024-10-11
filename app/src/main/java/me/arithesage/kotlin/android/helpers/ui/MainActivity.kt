@@ -24,6 +24,18 @@ class MainActivity : AppCompatActivity() {
         SimpleDialogs.Init (this)
         Requesters.Init (this)
 
+        Requesters.Login(
+            null,
+            "Login:",
+            onAccept = {
+                loginData: Map<String, String> ->
+                SimpleDialogs.ShowMessage (
+                    "User: " + loginData["username"] + "\n" +
+                            "Pass: " + loginData["password"])
+            }
+        )
+
+        /*
         Requesters.RequestInt(
             "IntTest",
             "Enter a number:",
@@ -31,6 +43,7 @@ class MainActivity : AppCompatActivity() {
                 SimpleDialogs.ShowMessage (response.toString())
             }
         )
+        */
 
         /*
         Requesters.RequestString (
