@@ -12,6 +12,9 @@ import android.widget.TextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
+import me.arithesage.kotlin.helpers.utils.Hashing
+
+
 class LoginUI (appContext: Context?) {
     private lateinit var ui: LinearLayout
     private lateinit var passwordFieldContainer: TextInputLayout
@@ -66,7 +69,10 @@ class LoginUI (appContext: Context?) {
 
 
     fun password (): String {
-        return passwordField.text.toString()
+        val enteredPassword: String = passwordField.text.toString ()
+        val hashedPassword: String = Hashing.SHA256 (enteredPassword)
+
+        return hashedPassword
     }
 
 
