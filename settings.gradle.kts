@@ -39,19 +39,17 @@ rootProject.name = "UIHelpers"
 include(":app")
 include(":lib")
 
+include (":Serialization")
+project (":Serialization").projectDir = File (
+    wipProjects.toFile(),
+    "Helpers/Serialization"
+)
+
 include (":Helpers-Testing")
 project (":Helpers-Testing").projectDir = File (
     wipProjects.toFile(),
     "Helpers/lib"
 )
-
-/*
-include (":Helpers")
-project (":Helpers").projectDir = File (
-    wipProjects.toFile(),
-    "Helpers/lib"
-)
-*/
 
 include (":Helpers-Utils")
 project (":Helpers-Utils").projectDir = File (
