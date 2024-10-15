@@ -59,6 +59,7 @@ object Requesters {
             requestCaption,
             onAccept = {
                 loginData: Map<String, String> ->
+                formUI.onAccept()
                 onAccept (loginData)
             },
             formUI.ui(),

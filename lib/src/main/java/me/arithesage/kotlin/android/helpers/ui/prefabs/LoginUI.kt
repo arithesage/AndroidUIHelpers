@@ -1,4 +1,4 @@
-@file:Suppress("unused", "FunctionName")
+@file:Suppress("FunctionName", "unused" , "UNUSED_ANONYMOUS_PARAMETER")
 
 package me.arithesage.kotlin.android.helpers.ui.prefabs
 
@@ -68,7 +68,10 @@ class LoginUI (appContext: Context?) {
     }
 
 
-    fun password (): String {
+    /**
+     * Returns the entered password hashed in SHA256
+     */
+    fun generatePasswordHash (): String {
         val enteredPassword: String = passwordField.text.toString ()
         val hashedPassword: String = Hashing.SHA256 (enteredPassword)
 
@@ -76,8 +79,24 @@ class LoginUI (appContext: Context?) {
     }
 
 
+    fun onAccept () {
+        if (!passwordField.text.isEmpty()) {
+            val hashedPassword: String = generatePasswordHash()
+        }
+    }
+
+
     fun passwordField (): EditText {
         return passwordField
+    }
+
+
+    /**
+     * Returns the built UI.
+     * Use this to integrate it in an Activity or another View.
+     */
+    fun ui () : LinearLayout {
+        return ui
     }
 
 
@@ -88,11 +107,6 @@ class LoginUI (appContext: Context?) {
 
     fun usernameField (): EditText {
         return usernameField
-    }
-    
-
-    fun ui () : LinearLayout {
-        return ui
     }
 }
 
