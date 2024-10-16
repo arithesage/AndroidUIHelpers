@@ -5,13 +5,9 @@ package me.arithesage.kotlin.android.helpers.ui.prefabs
 import android.content.Context
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-import android.text.method.PasswordTransformationMethod 
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.TextView
-import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-
 import me.arithesage.kotlin.helpers.utils.Hashing
 
 
@@ -82,7 +78,13 @@ class LoginUI (appContext: Context?) {
     fun onAccept () {
         if (!passwordField.text.isEmpty()) {
             val hashedPassword: String = generatePasswordHash()
+            passwordField.setText (hashedPassword)
         }
+    }
+
+
+    fun password (): String {
+        return passwordField.text.toString ()
     }
 
 

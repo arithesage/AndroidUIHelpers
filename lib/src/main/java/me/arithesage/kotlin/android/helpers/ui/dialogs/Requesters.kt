@@ -44,27 +44,41 @@ object Requesters {
     }
 
 
+    /**
+     * A simple requester for login data.
+     *
+     * The requester uses the LoginUI prefab and the password is
+     * encoded in SHA-256.
+     *
+     * The response is a map of type {username: ..., password: ...}.
+     *
+     * @param requesterTitle An optional title for the dialog
+     *
+     * @param requesterCaption An optional message about the data bein
+     * requested
+     *
+     * @param onAccept A lambda to process the request response
+     */
     fun Login (requesterTitle: String?,
-               requestCaption: String,
+               requestCaption: String?,
                onAccept: (Map<String, String>) -> Unit)
     {
-        val formUI = LoginUI (appContext)
+        val loginUI = LoginUI (appContext)
 
-        val formLayout = HashMap<Int, String> ()
-        formLayout.put (formUI.usernameField().id, "username")
-        formLayout.put (formUI.passwordField().id, "password")
+        CustomRequest(
+                requesterTitle,
+                requestCaption,
+                loginUI.ui(),
+                onAccept =
+                {
+                    loginUI.onAccept ()
 
-        Request (
-            requesterTitle,
-            requestCaption,
-            onAccept = {
-                loginData: Map<String, String> ->
-                formUI.onAccept()
-                onAccept (loginData)
-            },
-            formUI.ui(),
-            formLayout,
-            null
+                    onAccept (mapOf(
+                            "username" to loginUI.username (),
+                            "password" to loginUI.password ()
+                    ))
+                },
+                null
         )
     }
 
@@ -75,9 +89,16 @@ object Requesters {
      * Is the same as requesting an string and converting it to an
      * integer but using an input field that only accepts numbers
      * (opens the numeric keyboard, not the full one).
+     *
+     * @param requesterTitle An optional title for the dialog
+     *
+     * @param requesterCaption An optional message about the data being
+     * requested
+     *
+     * @param onAccept A lambda to process the request response
      */
     fun RequestInt (requesterTitle: String?,
-                    requestCaption: String,
+                    requesterCaption: String?,
                     onAccept: (Int) -> Unit)
     {
         val inputField: EditText = EditText (appContext)
@@ -85,11 +106,13 @@ object Requesters {
 
         RequestData (
             requesterTitle,
-            requestCaption,
+            requesterCaption,
             onAccept = {
                 response: String ->
+
                 try {
                     onAccept (response.toInt())
+
                 } catch (ex: NumberFormatException) {
                     onAccept (-1)
                 }
@@ -100,13 +123,23 @@ object Requesters {
     }
 
 
+    /**
+     * Shortcut for requesting a simple string
+     *
+     * @param requesterTitle An optional title for the dialog
+     *
+     * @param requesterCaption An optional message about the data being
+     * requested
+     *
+     * @param onAccept A lambda to process the request response
+     */
     fun RequestString (requesterTitle: String?,
-                       requestCaption: String,
+                       requesterCaption: String?,
                        onAccept: (String) -> Unit)
     {
         RequestData (
             requesterTitle,
-            requestCaption,
+            requesterCaption,
             onAccept = { response: String ->
                 onAccept (response)
             },
@@ -125,14 +158,14 @@ object Requesters {
      * You can specify a custom input field, a custom set of layout
      * params for your input field (or the default one), or both.
      *
-     * @param requesterTitle The title the dialog will show
-     * @param requestCaption Info about the data being requested
+     * @param requesterTitle An optional title for the dialog
+     * @param requesterCaption Optional info about the data being requested
      * @param onAccept A lambda to process the response if accepted
      * @param customInputField An optional custom input field to use
      * @param customInputFieldLayout An optional set of layout params to use
      */
     fun RequestData (requesterTitle: String?,
-                     requestCaption: String,
+                     requesterCaption: String?,
                      onAccept: (String) -> Unit,
                      customInputField: EditText?,
                      customInputFieldLayout: LayoutParams?)
@@ -233,9 +266,14 @@ object Requesters {
             request.setTitle (requesterTitle)
         }
 
-        // Then we set the caption.
-        // That is, what the requester is requesting.
-        request.setMessage (requestCaption)
+        // Then we set the caption if any was provided.
+        //
+        // This usually is a message telling what the requester
+        // is requesting.
+
+        if (requesterCaption != null) {
+            request.setMessage(requesterCaption)
+        }
 
         // And finally, define how the requester's button will behave.
         // Here we are enabling two buttons.
@@ -282,122 +320,85 @@ object Requesters {
 
 
     /**
-     * This requester allows a lot of flexibility.
+     * In this request dialog you pass the UI/form to show.
      *
-     * Is intended for requesting a bunch of data, so, you need to provide
-     * the entire form UI as a LinearLayout that will be oriented vertically.
+     * @param requesterTitle An optional dialog title
      *
-     * You can also provide a set of layout params for this UI, only keep in
-     * mind that the parent is a ConstraintLayout.
+     * @param requesterCaption An optional message about the data
+     * bein requested.
      *
-     * One of the requested params is a 'formLayout' (note that this isn't
-     * a LayoutParams object).
+     * @param ui The UI to show. The UI is parented to a ConstraintLayout
+     * container.
      *
-     * Due the requester will show a entirely custom UI, that can have
-     * many different fields, in order to return the entered data we use a
-     * dictionary.
+     * @param onAccept The lambda to call when 'Accept' button is clicked
      *
-     * The formLayout is used to know which field data goes to which key.
-     * So, let's suppose you have a login form with a username and a
-     * password input fields. Each one have a integer id.
-     *
-     * Now, we create a formLayout object where we put two entries:
-     * (usernameField.id, "username") and (passwordField.id, "password").
-     *
-     * Now, when accept button is clicked, the requester iterates the
-     * formLayout dictionary, searches for the fields by their id and
-     * in the returned dictionary it puts the entered data.
-     *
-     * @param requesterTitle The dialog title
-     * @param requestCaption Info about the requested data
-     *
-     * @param onAccept A lambda that returns a dictionary with
-     * the entered data in the form 'field = value'
-     *
-     * @param formUI The form UI
-     *
-     * @param formLayout A dictionary containing the form fields's ids
-     * and the name of the dictionary key where the input data will be
-     * stored
-     *
-     * @param formUILayoutParams Optional layout params for the formUI
+     * @param uiLayoutParams An optional set of layout params to apply
+     * to the ui.
      */
-    fun Request (requesterTitle: String?,
-                 requestCaption: String,
-                 onAccept: (HashMap<String, String>) -> Unit,
-                 formUI: LinearLayout,
-                 formLayout: Map<Int, String>,
-                 formUILayoutParams: LayoutParams?)
+    fun CustomRequest (requesterTitle: String?,
+                       requesterCaption: String?,
+                       ui: LinearLayout,
+                       onAccept: () -> Unit,
+                       uiLayoutParams: LayoutParams?)
     {
         if (!Initialized()) {
             return
         }
 
         val appContext: Context = (this.appContext as Context)
-
         val request = AlertDialog.Builder (appContext)
-
         val uiContainer = ConstraintLayout (appContext)
 
-        formUI.orientation = LinearLayout.VERTICAL
-
-        uiContainer.addView (formUI)
-
+        ui.orientation = LinearLayout.VERTICAL
+        uiContainer.addView (ui)
         request.setView (uiContainer)
 
-        if (formUILayoutParams != null) {
-            formUI.layoutParams = formUILayoutParams
+        if (uiLayoutParams != null) {
+            ui.layoutParams = uiLayoutParams
 
         } else {
             val formUILayout =
-                formUI.layoutParams as ConstraintLayout.LayoutParams
+                    ui.layoutParams as ConstraintLayout.LayoutParams
 
             formUILayout.width = LayoutParams.MATCH_PARENT
             formUILayout.height = LayoutParams.MATCH_PARENT
             formUILayout.leftMargin = 50
             formUILayout.rightMargin = 50
 
-            formUI.layoutParams = formUILayout
+            ui.layoutParams = formUILayout
         }
 
         if (requesterTitle != null) {
             request.setTitle (requesterTitle)
         }
 
-        request.setMessage (requestCaption)
+        if (requesterCaption != null) {
+            request.setMessage(requesterCaption)
+        }
 
         request.setPositiveButton (
-            "Accept",
-            object: DialogInterface.OnClickListener {
-                override fun onClick (dialog: DialogInterface,
-                                      whichButton: Int)
-                {
-                    val inputData = HashMap <String, String>()
-
-                    formLayout.forEach {
-                        entry ->
-
-                        val field = formUI.findViewById<EditText>(entry.key)
-                        inputData.put (entry.value, field.text.toString())
+                "Accept",
+                object: DialogInterface.OnClickListener {
+                    override fun onClick (dialog: DialogInterface,
+                                          whichButton: Int)
+                    {
+                        onAccept ()
                     }
-
-                    onAccept (inputData)
                 }
-            }
         )
 
         request.setNegativeButton (
-            "Cancel",
-            DialogInterface.OnClickListener() {
+                "Cancel",
+                DialogInterface.OnClickListener() {
                     dialog: DialogInterface,
                     whichButton: Int ->
 
-                fun onClick (dialog: DialogInterface,
-                             whichButton: Int)
-                {
+                    fun onClick (dialog: DialogInterface,
+                                 whichButton: Int)
+                    {
 
+                    }
                 }
-            }
         )
 
         request.create().show ()
